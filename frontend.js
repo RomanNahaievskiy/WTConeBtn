@@ -1,10 +1,3 @@
-function getEemployeeIdtoLocalStorage() {
-  // повертає список працівників (для кешу пошуку по коду)
-  google.script.run.WithSucsess().WithFailtrue().getEemployeeId();
-
-  localStorage.setItem("myCat", "Tom");
-}
-
 function chekEemployeeId() {
   // якщо не знайдено → один раз оновлюємо кеш з бекенду й шукаємо знову;
   // якщо досі не знайдено → показуємо “Користувача не знайдено” й зупиняємось;
@@ -37,18 +30,15 @@ function showMessage(res) {
 document.addEventListener("DOMContentLoaded", function () {
   const AppDOM = {};
   AppDOM.formEl = document.getElementById("form");
-
   AppDOM.inputCntEl = document.getElementById("input-cnt");
-
-  AppDOM.resetBtnEl = document.getElementById("reset-btn");
-  AppDOM.radioButtonsEl = document.querySelectorAll('input[type="radio"]');
-  AppDOM.messageCntEl = document.getElementById("message-cnt");
+  AppDOM.clearBtnEl = document.getElementById("clear-btn");
+  AppDOM.modal = document.getElementById("modal");
 
   let employeId;
   let shiftType;
   // Модальне вікно
   function showModal(message = "Йой, щось пішло не так...", bool) {
-    const modal = document.getElementById("modal");
+    const modal = AppDOM.modal;
     bool
       ? ((modal.dataset.color = "ok"), autoCloseModal())
       : (modal.dataset.color = "err");
@@ -76,8 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
     AppDOM.messageCntEl.textContent = "";
     shiftType = undefined;
     employeId = undefined;
-    AppDOM.submitBtnEl.removeAttribute("disabled");
-    AppDOM.radioButtonsEl.forEach((el) => el.removeAttribute("disabled"));
     AppDOM.formEl.reset();
     AppDOM.inputCntEl.focus();
   }
@@ -91,12 +79,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Отримання даних із радіокнопок
-  AppDOM.radioButtonsEl.forEach((el) => {
-    el.addEventListener("change", function (e) {
-      shiftType = e.target.value;
-    });
-  });
   // Відправка форми
   //========================================================================================================================================================
 
