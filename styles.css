@@ -96,6 +96,7 @@ form::after {
     justify-content: space-between;
 }
 
+
 #modal {
     position: absolute;
     top: 0;
@@ -141,6 +142,13 @@ form::after {
     background: var(--klr-palette-primary-main-color);
 }
 
+
+.input-line {
+    display: flex;
+    min-width: 100%;
+}
+
+
 #input-cnt {
     min-height: 58px;
     /* min-width: 100%; */
@@ -157,9 +165,7 @@ form::after {
 
 }
 
-.input-line {
-    display: flex;
-}
+
 
 
 #btns-cnt {
