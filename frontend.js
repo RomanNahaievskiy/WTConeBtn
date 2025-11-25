@@ -1,6 +1,6 @@
 function getEemployeeIdtoLocalStorage() {
-  // повертає список працівників (для кешу пошуку по коду)
-  google.script.run.WithSucsess().WithFailtrue().getEemployeeId();
+  // повертає список працівників (для кешу пошуку по коду) => backend getEemployeeId();
+  // google.script.run.WithSucsess().WithFailtrue().getEemployeeId();
 
   localStorage.setItem("myCat", "Tom");
 }
@@ -37,18 +37,15 @@ function showMessage(res) {
 document.addEventListener("DOMContentLoaded", function () {
   const AppDOM = {};
   AppDOM.formEl = document.getElementById("form");
-
-  AppDOM.inputCntEl = document.getElementById("input-cnt");
-
-  AppDOM.resetBtnEl = document.getElementById("reset-btn");
-  AppDOM.radioButtonsEl = document.querySelectorAll('input[type="radio"]');
-  AppDOM.messageCntEl = document.getElementById("message-cnt");
+  AppDOM.inputCntEl = document.getElementById("input-cnt"); // поле вводу
+  AppDOM.modalEl = document.getElementById("modal");
 
   let employeId;
   let shiftType;
   // Модальне вікно
   function showModal(message = "Йой, щось пішло не так...", bool) {
-    const modal = document.getElementById("modal");
+    const modal = AppDOM.modalEl;
+
     bool
       ? ((modal.dataset.color = "ok"), autoCloseModal())
       : (modal.dataset.color = "err");

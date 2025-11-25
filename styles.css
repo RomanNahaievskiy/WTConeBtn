@@ -89,6 +89,7 @@ form::after {
 
 #content-cnt {
     flex-grow: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
