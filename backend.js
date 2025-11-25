@@ -221,7 +221,8 @@ const actionType = {
 };
 
 // ======== Почати зміну ===========
-function addNewEntry(uid, time) {
+function addNewEntry(uid) {
+  const time = new Date();
   const user = usersData[uid];
   // Logger.log(user);
 
@@ -247,7 +248,8 @@ function addNewEntry(uid, time) {
 
 //=============Закрити зміну=============
 
-function closeShift(entryIndex, uid, endTime, prewStatus) {
+function closeShift(entryIndex, uid, prewStatus) {
+  const endTime = new Date();
   entryIndex = Math.floor(entryIndex);
   let journalValues = journalSheet.getDataRange().getValues();
 
@@ -328,3 +330,34 @@ function compareData(employeId = "jk", shiftType = actionType.start) {
 // Нова основна логіка
 // з фронта приходить uid
 // response повертає інформацію про працівника та дозволену дію або помилку та недозволені дії
+
+function request(employeId = "59485") {
+  const res = { action: false };
+  try {
+    // Перевірити ід та отримати дані працівника   {uid, name, prewStatus, timestamp, entryIndex} !!!
+    const userData = JSON.parse(checkUserId(employeId));
+    const { name, prewStatus, entryIndex } = userData;
+    Logger.log(userData);
+    Logger.log(name);
+    Logger.log(entryIndex); //? чи викличе пусте значення в фронті чи вже на бекенді  помилку
+    if (
+      prewStatus === status.end ||
+      prewStatus === status.pending ||
+      prewStatus === status.overtime ||
+      prewStatus === ""
+    ) {
+      //"Початок зміни"
+      res.action = "addNewEntry";
+      Logger.log(res);
+    } else if (prewStatus === status.start || prewStatus === status.pending) {
+      //"Кінець зміни" // Якщо статус останнього запису (Працює/Не закрито) і тип зміни, що вибрав працівник (Кінець зміни) то Закрити зміну
+      res.action = "closeShift";
+      Logger.log(res);
+    }
+    return { ...res, name, entryIndex };
+  } catch (err) {
+    Logger.log(`Помилка у request(): ${err.message}`);
+    Logger.log(res);
+    return { ...res, message: err.message };
+  } // google.script.run[res.action](id, entryIndex) }
+}

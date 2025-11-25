@@ -5,9 +5,6 @@ function chekEemployeeId() {
   google.script.run.getStatusEemployeeId(id); //
 }
 
-// фронт показує тільки ті кнопки, які дозволені (або одразу одну “Вхід”/“Вихід”).
-function showButton(actionType) {}
-
 function submitForm(actionType, id) {
   // бекенд:
   // читає актуальний статус із БД; readStaus()
@@ -33,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
   AppDOM.inputCntEl = document.getElementById("input-cnt");
   AppDOM.clearBtnEl = document.getElementById("clear-btn");
   AppDOM.modal = document.getElementById("modal");
+  AppDOM.actionBtnEl = document.getElementById("start-end-btn");
 
   let employeId;
   let shiftType;
@@ -76,6 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.target.value) {
       employeId = document.querySelector('input[name="employeId"]').value; // get ID from input
       // тут виклик функції бекенду
+      google.script.run
+        .withSuccessHandler((res) => showButton(res, employeId))
+        .request(employeId);
 
       fillBar();
     }
@@ -131,9 +132,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // console.log(shiftType, employeId)
   });
 
-  // document.addEventListener('keydown',e=>e.key ==='t'? showModal('mess', true):null)
+  // фронт показує тільки ті кнопки, які дозволені (або одразу одну “Вхід”/“Вихід”).
+  function showButton(res = { action: "addNewEntry" }, employeId) {
+    actionType = res.action; //"addNewEntry" || "closeShift"
 
-  // patch 00.1
+    const textBtn = res.action === "addNewEntry" ? "ПОЧАТИ" : "ЗАКІНЧИТИ";
+    AppDOM.actionBtnEl.removeAttribute("hidden");
+    AppDOM.actionBtnEl.innerText = textBtn;
+
+    AppDOM.actionBtnEl.onclick = (id) => {
+      google.script.run
+        .withSuccessHandler()
+        .withFailureHandler()
+        [res.action](id, res.entryIndex);
+    };
+  }
+
+  //
   //========================================================================================================================================================
 
   document.addEventListener("keydown", function (e) {

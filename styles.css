@@ -10,6 +10,7 @@ body {
     flex-direction: column;
     justify-content: space-around;
     background: #f7f7f7;
+    background: #302a11;
     color: #fff7f0;
     min-width: 100%;
     min-height: 100vh;
@@ -146,12 +147,13 @@ form::after {
 .input-line {
     display: flex;
     min-width: 100%;
+    justify-content: space-between;
 }
 
 
 #input-cnt {
     min-height: 58px;
-    /* min-width: 100%; */
+    width: 100%;
     padding: 12px;
     background: #16161f;
     border: 1px solid #777;
