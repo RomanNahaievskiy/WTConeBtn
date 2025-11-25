@@ -353,3 +353,19 @@ button:disabled {
         top: 24px;
     }
 }
+
+.progress {
+    width: 100%;
+    height: 56px;
+    background: transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress__bar {
+    height: 100%;
+    width: 0;
+    background: var(--klr-palette-primary-main-color);
+    transition: .3s;
+}

@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let employeId;
   let shiftType;
+
   // Модальне вікно
   function showModal(message = "Йой, щось пішло не так...", bool) {
     const modal = AppDOM.modal;
@@ -63,11 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Очищення форми
   function resetForm() {
-    AppDOM.messageCntEl.textContent = "";
-    shiftType = undefined;
-    employeId = undefined;
     AppDOM.formEl.reset();
     AppDOM.inputCntEl.focus();
+    clearBar();
   }
   // перший автофокус
   AppDOM.inputCntEl.focus();
@@ -76,6 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
   AppDOM.inputCntEl.addEventListener("change", function (e) {
     if (e.target.value) {
       employeId = document.querySelector('input[name="employeId"]').value; // get ID from input
+      // тут виклик функції бекенду
+
+      fillBar();
     }
   });
 
@@ -142,3 +144,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+let loaderInterval; // ← НАЗВА ЛІЧИЛЬНИКА
+function clearBar() {
+  let bar = document.getElementById("progressBar");
+
+  clearInterval(loaderInterval); // ← зупиняє лічильник
+  bar.style.width = "0%"; // скидає стан
+}
+
+function fillBar() {
+  let bar = document.getElementById("progressBar");
+  let val = 0;
+
+  // якщо таймер вже був — зупинити
+  clearInterval(loaderInterval);
+
+  loaderInterval = setInterval(() => {
+    val++;
+    bar.style.width = val + "%";
+
+    if (val >= 100) {
+      clearInterval(loaderInterval);
+    }
+  }, 30);
+}
