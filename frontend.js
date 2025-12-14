@@ -68,17 +68,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   // перший автофокус
   AppDOM.inputCntEl.focus();
-
+  //!Точка входу===================================
   // Отримання значень із рядка вводу коду
   AppDOM.inputCntEl.addEventListener("change", function (e) {
     if (e.target.value) {
       employeId = document.querySelector('input[name="employeId"]').value; // get ID from input
       // тут виклик функції бекенду
-      google.script.run
-        .withSuccessHandler((res) => showButton(res, employeId))
-        .request(employeId);
-
       fillBar();
+      // google.script.run
+      //   .withSuccessHandler((res) => showButton(res, employeId))
+      //   .request(employeId);
+
+      let res = { action: "addNewEntry" };
+      showButton(res, employeId);
     }
   });
 
@@ -136,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function showButton(res = { action: "addNewEntry" }, employeId) {
     actionType = res.action; //"addNewEntry" || "closeShift"
 
-    const textBtn = res.action === "addNewEntry" ? "ПОЧАТИ" : "ЗАКІНЧИТИ";
+    const textBtn = actionType === "addNewEntry" ? "ПОЧАТИ" : "ЗАКІНЧИТИ";
     AppDOM.actionBtnEl.removeAttribute("hidden");
     AppDOM.actionBtnEl.innerText = textBtn;
 
@@ -144,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
       google.script.run
         .withSuccessHandler()
         .withFailureHandler()
-        [res.action](id, res.entryIndex);
+        [actionType](id, res.entryIndex);
     };
   }
 

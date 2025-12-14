@@ -1,12 +1,17 @@
+const PROPS = PropertiesService.getScriptProperties(); // це об'єкт , яки варто щоразу оновлювати , чи це шлях до об'єкта
+
 function doGet(e) {
   clearUsersCache(); //очищає  кеш
-  return HtmlService.createHtmlOutputFromFile("ui") // ім'я твого HTML-файлу в проекті
+  return HtmlService.createHtmlOutputFromFile("frontend") // ім'я твого HTML-файлу в проекті
     .setTitle("Облік робочого часу")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 // Визначення ід цільових таблиць
-let dbId = "1zu5G4q3mlS46FHPQuS0SlNmTwO0G41iuphaEB4ZLK9A"; // Довідник працівників
-let wlId = "1MNMuwMZ6bccCboJRagpV01D-M3_LPGGcgKYjNDwDRv8"; // Журнал обліку
+let dbId; //= "1zu5G4q3mlS46FHPQuS0SlNmTwO0G41iuphaEB4ZLK9A"; // Довідник працівників
+let wlId; //= "1MNMuwMZ6bccCboJRagpV01D-M3_LPGGcgKYjNDwDRv8"; // Журнал обліку
+
+dbId = getDBid();
+wlId = getWlid();
 
 let sheetNamedbId = "Аркуш1"; //
 let sheetNamewlId = "Аркуш1"; //
@@ -70,7 +75,7 @@ function updateUserInCache(uid, patch) {
   Logger.log(`🔄 Оновлено кеш користувача ${uid}`);
 }
 
-function checkUserId(uid = "g", retry = false) {
+function checkUserId(uid, retry = false) {
   // Отримуємо актуальні дані (можливо з кешу)
   usersData = getUsersCached();
 
@@ -120,7 +125,7 @@ function getJournal() {
 }
 // 1 визначити індекс запису в журналі
 function findJournalEntryIndex(
-  uid = "id124",
+  uid,
   journalValues = journalSheet.getDataRange().getValues()
 ) {
   let index;
@@ -137,34 +142,34 @@ function findJournalEntryIndex(
     throw new Error("findJournalEntryIndex() : not found");
   }
 }
-//! крива ця функція
-function updateStatus() {
-  let journalValues = journalSheet.getDataRange().getValues();
-  now = new Date();
-  let activeVal = journalValues.filter((i) => i[5] === status.start);
-  let pendingVal = activeVal.filter(
-    (i) => now - new Date(i[2]) > 17 * 60 * 60 * 1000
-  ); // фільтр змін, що тривають більше 17 год
-  Logger.log(pendingVal);
+// //! крива ця функція
+// function updateStatus() {
+//   let journalValues = journalSheet.getDataRange().getValues();
+//   now = new Date();
+//   let activeVal = journalValues.filter((i) => i[5] === status.start);
+//   let pendingVal = activeVal.filter(
+//     (i) => now - new Date(i[2]) > 17 * 60 * 60 * 1000
+//   ); // фільтр змін, що тривають більше 17 год
+//   Logger.log(pendingVal);
 
-  for (let i = 0; i < pendingVal.length; i++) {
-    // оновити висячі записи статусом
-    // findJournalEntryIndex(uid, масив)
-    let index = findJournalEntryIndex(pendingVal[i][0], journalValues);
-    // оновлений масив
-    // pendingVal[i][6]=status.pending
-    let statusCell = journalSheet.getRange(index + 1, 6, 1, 1);
-    Logger.log(statusCell);
+//   for (let i = 0; i < pendingVal.length; i++) {
+//     // оновити висячі записи статусом
+//     // findJournalEntryIndex(uid, масив)
+//     let index = findJournalEntryIndex(pendingVal[i][0], journalValues);
+//     // оновлений масив
+//     // pendingVal[i][6]=status.pending
+//     let statusCell = journalSheet.getRange(index + 1, 6, 1, 1);
+//     Logger.log(statusCell);
 
-    statusCell.setValue(status.pending);
-    updateUserInUsersDB(pendingVal[i][0], { prewStatus: status.pending });
-    updateUserInCache(pendingVal[i][0], { prewStatus: status.pending });
-    Logger.log("Func : updateStatus () status was updated");
-  }
-  clearUsersCache();
+//     statusCell.setValue(status.pending);
+//     updateUserInUsersDB(pendingVal[i][0], { prewStatus: status.pending });
+//     updateUserInCache(pendingVal[i][0], { prewStatus: status.pending });
+//     Logger.log("Func : updateStatus () status was updated");
+//   }
+//   clearUsersCache();
 
-  Logger.log(pendingVal);
-}
+//   Logger.log(pendingVal);
+// }
 
 // function checkStatus(uid){
 //   let journalValues = journalSheet.getDataRange().getValues()
@@ -221,7 +226,7 @@ const actionType = {
 };
 
 // ======== Почати зміну ===========
-function addNewEntry(uid) {
+function addNewEntry(uid = "id123", index = null) {
   const time = new Date();
   const user = usersData[uid];
   // Logger.log(user);
@@ -244,11 +249,12 @@ function addNewEntry(uid) {
   // const sheet=journalSheet;
   // const row = sheet.getRange(sheet.getLastRow(), 1, 1, sheet.getLastColumn());
   // row.setBackground("green").setFontColor("#f4f4f4");
+  return `Розпочато зміну`;
 }
 
 //=============Закрити зміну=============
 
-function closeShift(entryIndex, uid, prewStatus) {
+function closeShift(uid = "id123", entryIndex = 4) {
   const endTime = new Date();
   entryIndex = Math.floor(entryIndex);
   let journalValues = journalSheet.getDataRange().getValues();
@@ -286,47 +292,54 @@ function closeShift(entryIndex, uid, prewStatus) {
   updateJournalEntry(entryIndex, arrVal);
 
   // Logger.log(arrVal);
+
+  const workedMs = endTime - journalValues[entryIndex - 1][2];
+  const hours = Math.floor(workedMs / 3600000);
+  const minutes = Math.round((workedMs % 3600000) / 60000);
+
+  const msg = `Відпрацьовано ${hours} год ${minutes} хв`;
+  return msg;
 }
 
 //===============COMPAREDATA ()==========================
 //
-function compareData(employeId = "jk", shiftType = actionType.start) {
-  const currentTimeStamp = new Date();
+// function compareData(employeId = "jk", shiftType = actionType.start) {
+//   const currentTimeStamp = new Date();
 
-  try {
-    // Перевірити ід  та отримати дані працівника {uid, name, prewStatus, timestamp, entryIndex} !!!
-    const userData = JSON.parse(checkUserId(employeId));
+//   try {
+//     // Перевірити ід  та отримати дані працівника {uid, name, prewStatus, timestamp, entryIndex} !!!
+//     const userData = JSON.parse(checkUserId(employeId));
 
-    // // Перевірити статус працівника
-    // if (!userData) {
-    //   throw new Error(
-    //     "Працівника не знайдено у довіднику (або ще не зарєєстровано)"
-    //   );
-    // }
+//     // // Перевірити статус працівника
+//     // if (!userData) {
+//     //   throw new Error(
+//     //     "Працівника не знайдено у довіднику (або ще не зарєєстровано)"
+//     //   );
+//     // }
 
-    const { name, prewStatus, entryIndex } = userData;
+//     const { name, prewStatus, entryIndex } = userData;
 
-    // Якщо статус останнього запису (Завершено/ Не закрито/ Наднорма/ Порожній рядок ) і тип зміни, що вибрав працівник (Початок зміни) то додати новий запис
-    if (
-      shiftType === actionType.start //"Початок зміни"
-    ) {
-      addNewEntry(employeId, currentTimeStamp);
-      return { isValid: true, message: `Продуктивної зміни, ${name} !` };
-    } else if (
-      shiftType === actionType.end //"Кінець зміни"
-    ) {
-      // Якщо статус останнього запису (Працює/Не закрито)  і тип зміни, що вибрав працівник (Кінець зміни) то Закрити зміну
-      closeShift(entryIndex, employeId, currentTimeStamp, prewStatus);
-      return { message: `Приємного відпочинку, ${name} !` };
-      // Якщо працівник хоче закрити  вже закриту або розпочати вже активну зміну
-    } else {
-      throw new Error("CompareData():unknow Err");
-    }
-  } catch (err) {
-    Logger.log(`Помилка у compareData(): ${err.message}`);
-    return { message: err.message };
-  }
-}
+//     // Якщо статус останнього запису (Завершено/ Не закрито/ Наднорма/ Порожній рядок ) і тип зміни, що вибрав працівник (Початок зміни) то додати новий запис
+//     if (
+//       shiftType === actionType.start //"Початок зміни"
+//     ) {
+//       addNewEntry(employeId, currentTimeStamp);
+//       return { isValid: true, message: `Продуктивної зміни, ${name} !` };
+//     } else if (
+//       shiftType === actionType.end //"Кінець зміни"
+//     ) {
+//       // Якщо статус останнього запису (Працює/Не закрито)  і тип зміни, що вибрав працівник (Кінець зміни) то Закрити зміну
+//       closeShift(entryIndex, employeId, currentTimeStamp, prewStatus);
+//       return { message: `Приємного відпочинку, ${name} !` };
+//       // Якщо працівник хоче закрити  вже закриту або розпочати вже активну зміну
+//     } else {
+//       throw new Error("CompareData():unknow Err");
+//     }
+//   } catch (err) {
+//     Logger.log(`Помилка у compareData(): ${err.message}`);
+//     return { message: err.message };
+//   }
+// }
 // Нова основна логіка
 // з фронта приходить uid
 // response повертає інформацію про працівника та дозволену дію або помилку та недозволені дії

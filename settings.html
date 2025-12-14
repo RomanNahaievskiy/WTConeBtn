@@ -1,0 +1,188 @@
+<style>
+  /*null style*/
+  * {
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+  *,
+  *:before,
+  *:after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus,
+  :active {
+    outline: none;
+  }
+  a:focus,
+  a:active {
+    outline: none;
+  }
+
+  nav,
+  footer,
+  header,
+  aside {
+    display: block;
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    font-size: 100%;
+    line-height: 1;
+    font-size: 16px;
+    -ms-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  input,
+  button,
+  textarea {
+    font-family: inherit;
+  }
+
+  input::-ms-clear {
+    display: none;
+  }
+  button {
+    cursor: pointer;
+  }
+  button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+  }
+  a:link,
+  a:visited {
+    text-decoration: none;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+  ul li {
+    list-style: none;
+  }
+  img {
+    vertical-align: top;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+  }
+  /*--------------------*/
+  .container-settings {
+    font-family: "Courier New", Courier, monospace;
+    position: relative;
+    margin: 0 auto;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    justify-content: space-between;
+    background-color: #23232f;
+    max-width: 500px;
+    height: auto;
+    padding: 6%;
+    border-radius: 12px;
+    font-size: 20px;
+    color: #777777;
+    background: linear-gradient(
+      56deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(35, 35, 47, 1) 50%
+    );
+  }
+  fieldset {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+  }
+  input {
+    font-size: 22px;
+    outline: solid 1px #777777;
+    border-radius: 6px;
+    padding: 5px;
+  }
+  label {
+    cursor: pointer;
+  }
+  .button {
+    padding: 6px;
+    border-radius: 6px;
+  }
+  button.button.close {
+    position: absolute;
+    background-color: #cf2f2a;
+    top: 12px;
+    right: 12px;
+    min-width: 45px;
+    min-height: 45px;
+    flex: 0 0 45px;
+  }
+  .button.close::before,
+  .button.close::after {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 2px;
+    position: absolute;
+    background-color: #fff;
+  }
+  .button.close:before {
+    left: 12px;
+    top: 22px;
+    transform: rotate(45deg);
+  }
+  .button.close:after {
+    left: 12px;
+    top: 22px;
+    transform: rotate(135deg);
+  }
+  .button.close:hover {
+    background-color: #ce4641;
+  }
+</style>
+<form class="container-settings">
+  <button class="button close"></button>
+  <fieldset>
+    <legend>Налаштуйте свої таблиці</legend>
+    <label
+      for=""
+      title="Створіть власну гугл таблицю, та додайте посилання, аби додаток міг з нею обмінюватися даними "
+      >База працівників</label
+    >
+    <input
+      id="dbid-input"
+      type="url"
+      placeholder="URL Google-таблиці Довідника БД працівників"
+      value="<?= dburl ?>"
+    />
+    <label
+      for=""
+      title="Створіть власну гугл таблицю, та додайте посилання, аби додаток міг з нею обмінюватися даними"
+      >Журнал обліку робочого часу</label
+    >
+    <input
+      id="wlid-input"
+      type="url"
+      placeholder="URL Google-таблиці Довідника Журналу ОРЧ"
+      value="<?= wlurl ?>"
+    />
+  </fieldset>
+  <button id="settings-submit-btn" type="submit" class="button">
+    Зберегти
+  </button>
+</form>
